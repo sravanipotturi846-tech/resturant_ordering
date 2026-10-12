@@ -15,8 +15,19 @@ from .models import Category, MenuItem, Reservation, Order, OrderItem, Testimoni
 from .utils import send_reservation_confirmation_email, send_order_receipt_email
 
 
+def ensure_seeded_data():
+    """Auto-seed menu data if the database is currently unpopulated."""
+    if not MenuItem.objects.exists():
+        from django.core.management import call_command
+        try:
+            call_command('populate_restaurant')
+        except Exception as e:
+            print(f"Auto-seed exception: {e}")
+
+
 @ensure_csrf_cookie
 def home(request):
+    ensure_seeded_data()
     categories = Category.objects.prefetch_related('items').all()
     featured_items = MenuItem.objects.filter(is_chef_special=True, is_available=True)[:6]
     all_items = MenuItem.objects.filter(is_available=True).select_related('category')
@@ -40,6 +51,7 @@ def home(request):
 
 def menu_api(request):
     """API endpoint returning menu items with categories and dietary metadata."""
+    ensure_seeded_data()
     category_slug = request.GET.get('category')
     diet = request.GET.get('diet')
     query = request.GET.get('q', '').strip()
