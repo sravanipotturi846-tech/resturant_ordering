@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tasting Order Receipt | L'Étoile Dorée</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #0a0c10;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 20px;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #121620;
+      border: 1px solid #d4af37;
+      border-radius: 8px;
+      padding: 35px;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+      padding-bottom: 25px;
+      margin-bottom: 25px;
+    }
+    .crest {
+      font-size: 28px;
+      color: #d4af37;
+      margin-bottom: 5px;
+    }
+    .title {
+      font-size: 22px;
+      color: #ffffff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    .badge-code {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid #d4af37;
+      color: #f3cf65;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 8px 18px;
+      border-radius: 4px;
+      margin-top: 15px;
+    }
+    .order-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    .order-table th {
+      text-align: left;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: #d4af37;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .order-table td {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .totals-box {
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      padding-top: 15px;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    .total-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      color: #9ca3af;
+    }
+    .grand-total {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ffffff;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+    .grand-total span:last-child {
+      color: #f3cf65;
+    }
+    .btn-receipt {
+      display: block;
+      text-align: center;
+      background: linear-gradient(135deg, #f7d770 0%, #d4af37 50%, #997517 100%);
+      color: #0a0c10;
+      font-weight: bold;
+      font-size: 14px;
+      text-decoration: none;
+      padding: 14px 20px;
+      border-radius: 4px;
+      margin: 25px 0 15px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .footer-note {
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 20px;
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <div class="crest">&#10022;</div>
+      <h1 class="title">L'ÉTOILE DORÉE</h1>
+      <p style="color: #d4af37; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin: 5px 0 0 0;">Official Tasting Order Receipt</p>
+      <div class="badge-code">Order #{{ order.order_number }}</div>
+    </div>
+
+    <p style="font-size: 15px; line-height: 1.6;">Dear {{ order.customer_name }},</p>
+    <p style="font-size: 14px; line-height: 1.6; color: #9ca3af;">
+      Thank you for your order. Our culinary brigade has received your specifications for <strong>{{ order.get_order_type_display }}</strong>{% if order.table_or_address %} ({{ order.table_or_address }}){% endif %}.
+    </p>
+
+    <table class="order-table">
+      <thead>
+        <tr>
+          <th>Dish Item</th>
+          <th style="text-align: center;">Qty</th>
+          <th style="text-align: right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order.items.all %}
+        <tr>
+          <td><strong>{{ item.item_name }}</strong></td>
+          <td style="text-align: center;">{{ item.quantity }}</td>
+          <td style="text-align: right; color: #ffffff;">${{ item.item_subtotal }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="totals-box">
+      <div class="total-line">
+        <span>Subtotal</span>
+        <span>${{ order.subtotal }}</span>
+      </div>
+      <div class="total-line">
+        <span>Culinary Tax & Service (8.5%)</span>
+        <span>${{ order.tax }}</span>
+      </div>
+      <div class="total-line">
+        <span>Staff & Sommelier Gratuity</span>
+        <span>${{ order.tip_amount }}</span>
+      </div>
+      <div class="total-line grand-total">
+        <span>Total Paid ({{ order.payment_method }})</span>
+        <span>${{ order.total }}</span>
+      </div>
+    </div>
+
+    {% if order.notes %}
+    <p style="font-size: 13px; color: #9ca3af; margin-top: 15px;">
+      <strong>Kitchen Instructions:</strong> {{ order.notes }}
+    </p>
+    {% endif %}
+
+    <div class="footer-note">
+      L'Étoile Dorée Restaurant Group • 420 Avenue Montaigne, Suite 100<br>
+      For urgent modifications to live orders, call Kitchen Expediting: +1 (555) 789-2045
+    </div>
+  </div>
+</body>
+</html>

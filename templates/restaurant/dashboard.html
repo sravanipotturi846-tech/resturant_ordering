@@ -1,0 +1,241 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Operational Dashboard | L'Étoile Dorée Staff{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span class="section-label">Management Command Center</span>
+        <h1 class="section-title font-serif" style="margin-bottom: 0.3rem;">Service & <span class="text-gold">Operations</span></h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Real-time overview of evening bookings, dining orders, and revenue.</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        {% if user.is_authenticated %}
+          <div style="font-size: 0.85rem; color: var(--gold-light); background: rgba(212, 175, 55, 0.1); border: 1px solid var(--border-subtle); padding: 0.45rem 0.9rem; border-radius: 4px;">
+            <span>Staff: <strong>{{ user.username }}</strong></span>
+          </div>
+          <a href="/admin/" target="_blank" class="btn btn-outline-gold btn-sm">
+            <span>Admin Portal ↗</span>
+          </a>
+          <a href="/admin/logout/?next=/dashboard/" class="btn btn-outline-gold btn-sm" style="border-color: rgba(255,255,255,0.2); color: var(--text-muted);">
+            <span>Logout</span>
+          </a>
+        {% else %}
+          <a href="/admin/login/?next=/dashboard/" class="btn btn-gold btn-sm">
+            <span>Staff Login ✦</span>
+          </a>
+          <a href="/admin/" target="_blank" class="btn btn-outline-gold btn-sm">
+            <span>Admin Portal ↗</span>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- STATS CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-card-label">Total Reservations</span>
+        <div class="stat-card-val">{{ stats.total_reservations }}</div>
+        <p style="font-size: 0.8rem; color: var(--success); margin-top: 0.4rem;">{{ stats.confirmed_reservations }} confirmed</p>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-card-label">Tasting Orders</span>
+        <div class="stat-card-val">{{ stats.total_orders }}</div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem;">Dine-In, Express & Delivery</p>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-card-label">Revenue Generated</span>
+        <div class="stat-card-val">${{ stats.revenue|floatformat:2 }}</div>
+        <p style="font-size: 0.8rem; color: var(--gold-light); margin-top: 0.4rem;">From digital tasting orders</p>
+      </div>
+
+      <div class="stat-card">
+        <span class="stat-card-label">Curated Menu Dishes</span>
+        <div class="stat-card-val">{{ stats.total_dishes }}</div>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem;">Across 5 sensory courses</p>
+      </div>
+    </div>
+
+    <!-- RECENT TABLE RESERVATIONS TABLE -->
+    <div class="data-table-wrap">
+      <div class="table-header-bar">
+        <h3 class="font-serif" style="font-size: 1.3rem; color: #fff;">Guest Table Bookings</h3>
+        <span style="font-size: 0.82rem; color: var(--gold-light);">Latest 20 Bookings</span>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="luxury-table">
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Guest Name</th>
+              <th>Date & Slot</th>
+              <th>Party</th>
+              <th>Seating Atmosphere</th>
+              <th>Special Requests</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for res in reservations %}
+            <tr id="res-row-{{ res.booking_code }}">
+              <td><strong>{{ res.booking_code }}</strong></td>
+              <td>
+                <div>{{ res.customer_name }}</div>
+                <div style="font-size: 0.78rem; color: var(--text-faint);">{{ res.phone }} | {{ res.email }}</div>
+              </td>
+              <td>{{ res.date }}<br><span style="color: var(--gold-light);">{{ res.time_slot }}</span></td>
+              <td>{{ res.guests }} Guests</td>
+              <td>{{ res.get_seating_area_display }}</td>
+              <td style="max-width: 200px; font-size: 0.82rem; color: var(--text-muted);">
+                {{ res.special_requests|default:"None specified" }}
+              </td>
+              <td>
+                <span class="status-badge {{ res.status }}" id="res-badge-{{ res.booking_code }}">
+                  {{ res.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <select class="form-control" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; width: auto;" 
+                        onchange="updateRecordStatus('reservation', '{{ res.booking_code }}', this.value)">
+                  {% for s_code, s_label in status_choices_res %}
+                  <option value="{{ s_code }}" {% if res.status == s_code %}selected{% endif %}>{{ s_label }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                No guest reservations recorded yet.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RECENT ORDERS TABLE -->
+    <div class="data-table-wrap">
+      <div class="table-header-bar">
+        <h3 class="font-serif" style="font-size: 1.3rem; color: #fff;">Culinary Tasting Orders</h3>
+        <span style="font-size: 0.82rem; color: var(--gold-light);">Live Kitchen Orders</span>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="luxury-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Customer</th>
+              <th>Service Mode</th>
+              <th>Items Ordered</th>
+              <th>Total Bill</th>
+              <th>Status</th>
+              <th>Kitchen Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ord in orders %}
+            <tr id="ord-row-{{ ord.order_number }}">
+              <td><strong>{{ ord.order_number }}</strong></td>
+              <td>
+                <div>{{ ord.customer_name }}</div>
+                <div style="font-size: 0.78rem; color: var(--text-faint);">{{ ord.phone }}</div>
+              </td>
+              <td>
+                {{ ord.get_order_type_display }}
+                {% if ord.table_or_address %}
+                <div style="font-size: 0.78rem; color: var(--gold-light);">{{ ord.table_or_address }}</div>
+                {% endif %}
+              </td>
+              <td style="max-width: 250px; font-size: 0.82rem;">
+                {% for item in ord.items.all %}
+                  <div>{{ item.quantity }}x {{ item.item_name }} (${{ item.price }})</div>
+                {% empty %}
+                  <span style="color: var(--text-faint);">Custom service</span>
+                {% endfor %}
+              </td>
+              <td style="font-weight: 700; color: var(--gold-light); font-size: 1rem;">
+                ${{ ord.total }}
+              </td>
+              <td>
+                <span class="status-badge {{ ord.status }}" id="ord-badge-{{ ord.order_number }}">
+                  {{ ord.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <select class="form-control" style="padding: 0.4rem 0.6rem; font-size: 0.8rem; width: auto;"
+                        onchange="updateRecordStatus('order', '{{ ord.order_number }}', this.value)">
+                  {% for s_code, s_label in status_choices_ord %}
+                  <option value="{{ s_code }}" {% if ord.status == s_code %}selected{% endif %}>{{ s_label }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                No culinary orders placed yet.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function updateRecordStatus(type, id, newStatus) {
+  try {
+    const res = await fetch('/api/update-status/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': (function(name){
+          let cVal = null;
+          if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+              const c = cookies[i].trim();
+              if (c.substring(0, name.length + 1) === (name + '=')) {
+                cVal = decodeURIComponent(c.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cVal;
+        })('csrftoken')
+      },
+      body: JSON.stringify({ type: type, id: id, status: newStatus })
+    });
+    const data = await res.json();
+    if (data.success) {
+      const badgeId = (type === 'reservation') ? `res-badge-${id}` : `ord-badge-${id}`;
+      const badge = document.getElementById(badgeId);
+      if (badge) {
+        badge.className = `status-badge ${data.new_status}`;
+        badge.textContent = data.display;
+      }
+    } else {
+      alert('Failed to update status: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Network error updating status.');
+  }
+}
+</script>
+{% endblock %}

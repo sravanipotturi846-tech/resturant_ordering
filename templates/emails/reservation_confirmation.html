@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Table Reservation Confirmation | L'Étoile Dorée</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #0a0c10;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 20px;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #121620;
+      border: 1px solid #d4af37;
+      border-radius: 8px;
+      padding: 35px;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+      padding-bottom: 25px;
+      margin-bottom: 25px;
+    }
+    .crest {
+      font-size: 28px;
+      color: #d4af37;
+      margin-bottom: 5px;
+    }
+    .title {
+      font-size: 22px;
+      color: #ffffff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    .badge-code {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid #d4af37;
+      color: #f3cf65;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 8px 18px;
+      border-radius: 4px;
+      margin-top: 15px;
+      letter-spacing: 1px;
+    }
+    .details-box {
+      background-color: #0d1017;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 20px;
+      margin: 25px 0;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 14px;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    .label {
+      color: #9ca3af;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+    .value {
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .footer-note {
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+      line-height: 1.6;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 20px;
+      margin-top: 25px;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <div class="crest">&#10022;</div>
+      <h1 class="title">L'ÉTOILE DORÉE</h1>
+      <p style="color: #d4af37; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin: 5px 0 0 0;">Table Sanctuary Reservation Confirmed</p>
+      <div class="badge-code">Confirmation #{{ reservation.booking_code }}</div>
+    </div>
+
+    <p style="font-size: 15px; line-height: 1.6;">Dear {{ reservation.customer_name }},</p>
+    <p style="font-size: 14px; line-height: 1.6; color: #9ca3af;">
+      It is our absolute pleasure to confirm your dining reservation at L'Étoile Dorée. Executive Chef Jean-Luc Laurent and our hospitality brigade eagerly await your arrival.
+    </p>
+
+    <div class="details-box">
+      <div class="detail-row">
+        <span class="label">Date of Service</span>
+        <span class="value">{{ reservation.date|date:"l, F d, Y" }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Seating Time</span>
+        <span class="value">{{ reservation.time_slot }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Party Size</span>
+        <span class="value">{{ reservation.guests }} Guests</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Atmosphere</span>
+        <span class="value">{{ reservation.get_seating_area_display }}</span>
+      </div>
+      {% if reservation.special_requests %}
+      <div class="detail-row">
+        <span class="label">Accommodations</span>
+        <span class="value" style="font-weight: normal; color: #d4af37;">{{ reservation.special_requests }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <p style="font-size: 13px; color: #9ca3af; line-height: 1.6;">
+      <strong>Dress Code:</strong> Elegant formal attire. Should your schedule require adjustments or cancellation, kindly contact our Maître d' at least 24 hours prior to service.
+    </p>
+
+    <div class="footer-note">
+      L'Étoile Dorée Restaurant Group • 420 Avenue Montaigne, Suite 100<br>
+      Concierge Desk: +1 (555) 789-2045 | reservations@letoiledoree.com
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,333 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<section class="hero-section" id="hero">
+  <div class="hero-overlay"></div>
+  <div class="container hero-content">
+    <div class="hero-badge">
+      <span class="star-icon">★ ★ ★</span>
+      <span>Michelin Three-Star Gastronomy</span>
+    </div>
+    <h1 class="hero-title font-serif">
+      Sensory Alchemy.<br>
+      <span class="text-gold">Timeless Elegance.</span>
+    </h1>
+    <p class="hero-desc">
+      Welcome to L'Étoile Dorée, where culinary innovation honors classical French terroir. Immerse yourself in an orchestrated symphony of flavors crafted by Executive Chef Jean-Luc Laurent.
+    </p>
+
+    <div class="hero-cta-group">
+      <a href="#reservations" class="btn btn-gold" id="hero-reserve-btn">
+        <span>Reserve A Table</span>
+        <span>→</span>
+      </a>
+      <a href="#menu" class="btn btn-outline-gold" id="hero-menu-btn">
+        <span>Explore Tasting Menu</span>
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <h3>3 ★</h3>
+        <p>Michelin Accolades</p>
+      </div>
+      <div class="stat-item">
+        <h3>100%</h3>
+        <p>Artisanal Sourcing</p>
+      </div>
+      <div class="stat-item">
+        <h3>420+</h3>
+        <p>Reserve Cellar Labels</p>
+      </div>
+      <div class="stat-item">
+        <h3>4.9</h3>
+        <p>Critic Consensus</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT / CULINARY PHILOSOPHY -->
+<section class="section-padding" id="about" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+  <div class="container">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+      <div>
+        <span class="section-label">Culinary Heritage</span>
+        <h2 class="section-title font-serif">Where Pure Ingredients Meet <span class="text-gold">Avant-Garde Artistry</span></h2>
+        <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.05rem;">
+          At L'Étoile Dorée, dining transcends sustenance—it is a poetic ritual. We procure seasonal harvests directly from Brittany's heirloom micro-farms, wild cold-water seafood from sustainable Alaskan fisheries, and rare white truffles from Piedmont foragers.
+        </p>
+        <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem;">
+          Every dish presented at your table is conceived as an ephemeral artwork, harmonizing temperature, visual geometry, and transcendent aromatics.
+        </p>
+
+        <div style="display: flex; gap: 2rem; align-items: center; border-left: 2px solid var(--gold-primary); padding-left: 1.5rem;">
+          <div>
+            <h4 class="font-serif" style="font-size: 1.15rem; color: #fff;">Chef Jean-Luc Laurent</h4>
+            <p style="font-size: 0.85rem; color: var(--gold-light);">Maître Cuisinier de France</p>
+          </div>
+          <span style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--gold-primary); font-style: italic;">
+            "Perfection is found in what cannot be stripped away."
+          </span>
+        </div>
+      </div>
+
+      <div style="position: relative;">
+        <div style="border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-lg);">
+          <img src="https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?auto=format&fit=crop&w=900&q=80" alt="Executive Chef plating an exquisite dish" style="width: 100%; height: 480px; object-fit: cover;">
+        </div>
+        <div style="position: absolute; bottom: -20px; right: -20px; background: rgba(18, 22, 31, 0.95); border: 1px solid var(--gold-primary); padding: 1.25rem 2rem; border-radius: 6px; backdrop-filter: blur(10px); box-shadow: var(--shadow-sm);">
+          <span style="display: block; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--gold-light); text-transform: uppercase;">Private Dining</span>
+          <span style="font-family: var(--font-serif); font-size: 1.2rem; color: #fff;">Skyline Salon & Cellar Vault</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHEF'S SIGNATURES CAROUSEL / HIGHLIGHTS -->
+<section class="section-padding" id="signatures">
+  <div class="container text-center">
+    <span class="section-label">Masterpieces</span>
+    <h2 class="section-title font-serif">Executive Chef's <span class="text-gold">Signatures</span></h2>
+    <p class="section-subtitle">A curated preview of our most celebrated creations, celebrated globally by epicures and critics alike.</p>
+  </div>
+
+  <div class="container">
+    <div class="dish-grid">
+      {% for dish in featured_items %}
+      <div class="dish-card">
+        <div class="dish-img-wrap">
+          <img src="{{ dish.image_url }}" alt="{{ dish.name }}" class="dish-img">
+          <span class="dish-badge-special">Chef's Signature</span>
+          <div class="dish-badge-diet">
+            {% if dish.is_vegetarian %}<span class="diet-pill veg">VEG</span>{% endif %}
+            {% if dish.is_gluten_free %}<span class="diet-pill gf">GF</span>{% endif %}
+          </div>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header">
+            <h3 class="dish-name font-serif">{{ dish.name }}</h3>
+            <span class="dish-price">${{ dish.price }}</span>
+          </div>
+          <p class="dish-desc">{{ dish.description }}</p>
+          <div class="dish-meta">
+            <span class="dish-rating" onclick="window.openDishReviews({{ dish.id }})" style="cursor: pointer;" title="View & Add Tasting Notes">★ {{ dish.rating }} <span style="font-size: 0.75rem; text-decoration: underline; margin-left: 3px;">Reviews</span></span>
+            <span>{% if dish.calories %}{{ dish.calories }} kcal • {% endif %}{{ dish.prep_time_minutes }} mins</span>
+          </div>
+          <div class="dish-card-actions">
+            <button class="btn-add-cart" onclick="window.addToCart({{ dish.id }})">
+              <span>+ Add to Tasting Order</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE FULL TASTING MENU -->
+<section class="section-padding" id="menu" style="background: rgba(10, 12, 16, 0.6); border-top: 1px solid rgba(255,255,255,0.05);">
+  <div class="container text-center">
+    <span class="section-label">A La Carte & Courses</span>
+    <h2 class="section-title font-serif">The Gastronomic <span class="text-gold">Tasting Menu</span></h2>
+    <p class="section-subtitle">Filter by category or dietary preference to assemble your personalized epicurean journey.</p>
+  </div>
+
+  <div class="container">
+    <!-- Interactive Filter Controls -->
+    <div class="menu-controls">
+      <div class="menu-search-bar">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="menu-search-input" class="search-input" placeholder="Search dish names, truffles, wagyu, seafood, or ingredients...">
+        </div>
+      </div>
+
+      <div class="category-tabs">
+        <button class="tab-btn active" data-slug="all">All Offerings</button>
+        {% for cat in categories %}
+        <button class="tab-btn" data-slug="{{ cat.slug }}">{{ cat.name }}</button>
+        {% endfor %}
+      </div>
+
+      <div class="dietary-filters">
+        <span>Dietary Highlights:</span>
+        <button class="dietary-btn" data-diet="chef_special">★ Chef's Specials</button>
+        <button class="dietary-btn" data-diet="vegetarian">🌱 Vegetarian</button>
+        <button class="dietary-btn" data-diet="gluten_free">🌾 Gluten-Free</button>
+        <button class="dietary-btn" data-diet="vegan">🌿 Vegan</button>
+      </div>
+    </div>
+
+    <!-- Dish Grid (Interactive rendered via app.js with initial dynamic server fallback) -->
+    <div class="dish-grid" id="menu-dish-grid">
+      {% for dish in all_items %}
+      <div class="dish-card" data-id="{{ dish.id }}">
+        <div class="dish-img-wrap">
+          <img src="{{ dish.image_url }}" alt="{{ dish.name }}" class="dish-img">
+          {% if dish.is_chef_special %}<span class="dish-badge-special">Chef's Selection</span>{% endif %}
+          <div class="dish-badge-diet">
+            {% if dish.is_vegetarian %}<span class="diet-pill veg">VEG</span>{% endif %}
+            {% if dish.is_gluten_free %}<span class="diet-pill gf">GF</span>{% endif %}
+          </div>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header">
+            <h3 class="dish-name font-serif">{{ dish.name }}</h3>
+            <span class="dish-price">${{ dish.price }}</span>
+          </div>
+          <p class="dish-desc">{{ dish.description }}</p>
+          <div class="dish-meta">
+            <span class="dish-rating" onclick="window.openDishReviews({{ dish.id }})" style="cursor: pointer;" title="View & Add Tasting Notes">★ {{ dish.rating }} <span style="font-size: 0.75rem; text-decoration: underline; margin-left: 3px;">Reviews</span></span>
+            <span>{% if dish.calories %}{{ dish.calories }} kcal • {% endif %}{{ dish.prep_time_minutes }} mins</span>
+          </div>
+          <div class="dish-card-actions">
+            <button class="btn-add-cart" onclick="window.addToCart({{ dish.id }})">
+              <span>+ Add to Tasting Order</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- TABLE RESERVATION FORM -->
+<section class="section-padding reservation-section" id="reservations">
+  <div class="container text-center">
+    <span class="section-label">Private Hospitality</span>
+    <h2 class="section-title font-serif">Reserve Your <span class="text-gold">Table Sanctuary</span></h2>
+    <p class="section-subtitle">Reservations open 30 days in advance. Dedicated concierge assistance for bespoke requests.</p>
+  </div>
+
+  <div class="container">
+    <div class="reservation-box">
+      <form id="reservation-form">
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label" for="res-name">Guest of Honor</label>
+            <input type="text" id="res-name" class="form-control" placeholder="e.g. Lord Julian Thorne" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="res-email">Email Address</label>
+            <input type="email" id="res-email" class="form-control" placeholder="julian@thorne.co.uk" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="res-phone">Telephone Contact</label>
+            <input type="tel" id="res-phone" class="form-control" placeholder="+1 (555) 234-5678" required>
+          </div>
+        </div>
+
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label" for="res-date">Date of Service</label>
+            <input type="date" id="res-date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="res-time">Seating Time Slot</label>
+            <select id="res-time" class="form-control" required>
+              <option value="17:30">17:30 (Twilight Service)</option>
+              <option value="18:30">18:30 (Grand Salon)</option>
+              <option value="19:30">19:30 (Prime Evening)</option>
+              <option value="20:30" selected>20:30 (Chef's Showcase)</option>
+              <option value="21:30">21:30 (Late Cellar)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="res-guests">Number of Guests</label>
+            <select id="res-guests" class="form-control">
+              <option value="1">1 Guest (Solo Connoisseur)</option>
+              <option value="2" selected>2 Guests (Intimate Dining)</option>
+              <option value="4">4 Guests (Private Table)</option>
+              <option value="6">6 Guests (Salon Banquet)</option>
+              <option value="8">8 Guests (Estate Gathering)</option>
+              <option value="12">12+ Guests (Cellar Vault Takeover)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="res-seating">Atmosphere & Seating Area</label>
+          <select id="res-seating" class="form-control">
+            {% for code, label in seating_choices %}
+            <option value="{{ code }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="res-notes">Sommelier & Dietary Accommodations</label>
+          <textarea id="res-notes" class="form-control" rows="3" placeholder="Please indicate dietary restrictions, anniversaries, or pre-arranged champagne service..."></textarea>
+        </div>
+
+        <div class="text-center" style="margin-top: 2rem;">
+          <button type="submit" class="btn btn-gold" style="min-width: 280px;">
+            <span>Request Table Confirmation</span>
+            <span>✦</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- THE CELLAR & COCKTAILS SPOTLIGHT -->
+<section class="section-padding" id="cellar" style="border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+  <div class="container" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem; align-items: center;">
+    <div style="border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-lg);">
+      <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80" alt="Sommelier pouring vintage wine in the cellar" style="width: 100%; height: 420px; object-fit: cover;">
+    </div>
+    <div>
+      <span class="section-label">Sommelier Reserves</span>
+      <h2 class="section-title font-serif">The Subterranean <span class="text-gold">Cellar & Mixology</span></h2>
+      <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 1.5rem;">
+        Beneath the dining salon lies our temperature-controlled vault housing over 420 premier crus, rare single malts, and bespoke botanicals. Our Head Sommelier provides custom vertical pairings tailored to each course.
+      </p>
+      <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 2rem; color: #e5e7eb;">
+        <li>✦ Tableside smoking cedar bells and liquid nitrogen elixirs</li>
+        <li>✦ Certified Biodynamic & Organic estate vintages from Burgundy & Bordeaux</li>
+        <li>✦ Rare Japanese whiskies and century-old Cognacs</li>
+      </ul>
+      <a href="#menu" class="btn btn-outline-gold">
+        <span>Explore Cellar Offerings</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CRITICS & TESTIMONIALS -->
+<section class="section-padding" id="reviews">
+  <div class="container text-center">
+    <span class="section-label">Critical Acclaim</span>
+    <h2 class="section-title font-serif">Accolades & <span class="text-gold">Reflections</span></h2>
+    <p class="section-subtitle">Words of praise from revered inspectors, culinary journals, and esteemed guests.</p>
+  </div>
+
+  <div class="container">
+    <div class="testimonial-grid">
+      {% for review in testimonials %}
+      <div class="testimonial-card">
+        <div style="color: var(--gold-primary); font-size: 1.2rem; margin-bottom: 1rem;">
+          ★★★★★
+        </div>
+        <p class="testimonial-quote">“{{ review.comment }}”</p>
+        <div class="testimonial-author">
+          <h4>{{ review.author_name }}</h4>
+          <p>{{ review.designation }}</p>
+          {% if review.dish_highlight %}
+          <div style="margin-top: 0.5rem; font-size: 0.78rem; color: var(--gold-light);">
+            Highlight: {{ review.dish_highlight }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

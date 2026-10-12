@@ -1,0 +1,74 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Register Patron Account | L'Étoile Dorée{% endblock %}
+
+{% block content %}
+<section class="section-padding" style="min-height: 85vh; display: flex; align-items: center; padding-top: 8rem;">
+  <div class="container">
+    <div style="max-width: 520px; margin: 0 auto; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 2.5rem; backdrop-filter: blur(16px); box-shadow: var(--shadow-lg), var(--shadow-gold);">
+      
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <div class="brand-crest" style="margin: 0 auto 0.75rem auto;">✦</div>
+        <h2 class="font-serif" style="font-size: 2rem; margin-bottom: 0.3rem;">Patron <span class="text-gold">Membership</span></h2>
+        <p style="color: var(--text-muted); font-size: 0.88rem;">Create your account to track bookings, priority seatings, and culinary receipts.</p>
+      </div>
+
+      {% if messages %}
+        <div style="margin-bottom: 1.5rem;">
+          {% for message in messages %}
+            <div style="padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.85rem; margin-bottom: 0.5rem; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'restaurant:register' %}">
+        {% csrf_token %}
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="first_name">First Name</label>
+            <input type="text" name="first_name" id="first_name" class="form-control" placeholder="e.g. Julian" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="last_name">Last Name</label>
+            <input type="text" name="last_name" id="last_name" class="form-control" placeholder="e.g. Thorne" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="username">Username</label>
+          <input type="text" name="username" id="username" class="form-control" placeholder="Choose a username" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" name="email" id="email" class="form-control" placeholder="julian@estate.com" required>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password_confirm">Confirm Password</label>
+            <input type="password" name="password_confirm" id="password_confirm" class="form-control" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: 0.5rem; margin-bottom: 1.25rem;">
+          <span>Complete Patron Registration</span>
+        </button>
+      </form>
+
+      <div style="text-align: center; font-size: 0.88rem; color: var(--text-muted); border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1.25rem;">
+        Already an esteemed patron? 
+        <a href="{% url 'restaurant:login' %}" style="color: var(--gold-light); font-weight: 600;">Sign in here →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Patron Sanctuary | {{ user.get_full_name|default:user.username }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper" style="padding-top: 7.5rem; min-height: 90vh;">
+  <div class="container">
+    
+    <!-- Patron Profile Header -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 2.5rem; margin-bottom: 3rem; backdrop-filter: blur(16px); box-shadow: var(--shadow-lg), var(--shadow-gold);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+          <div style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--gold-primary); background: radial-gradient(circle, rgba(212,175,55,0.3), transparent); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--gold-light);">
+            ✦
+          </div>
+          <div>
+            <span class="section-label" style="margin-bottom: 0.2rem;">Esteemed Patron</span>
+            <h1 class="font-serif" style="font-size: 2.2rem; color: #fff; line-height: 1.2;">
+              {{ user.get_full_name|default:user.username }}
+            </h1>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">{{ user.email }} • Member since {{ user.date_joined|date:"F Y" }}</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+          <a href="{% url 'restaurant:home' %}#reservations" class="btn btn-gold btn-sm">
+            <span>+ Reserve Table</span>
+          </a>
+          <a href="{% url 'restaurant:home' %}#menu" class="btn btn-outline-gold btn-sm">
+            <span>Explore Menu</span>
+          </a>
+          <a href="{% url 'restaurant:logout' %}" class="btn btn-outline-gold btn-sm" style="border-color: rgba(255,255,255,0.2); color: var(--text-muted);">
+            <span>Sign Out</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="stats-grid" style="margin-top: 2rem; margin-bottom: 0;">
+        <div class="stat-card" style="background: rgba(10,12,16,0.6);">
+          <span class="stat-card-label">Table Reservations</span>
+          <div class="stat-card-val">{{ reservations.count }}</div>
+          <p style="font-size: 0.78rem; color: var(--gold-light); margin-top: 0.2rem;">Dining Sanctuary visits</p>
+        </div>
+        <div class="stat-card" style="background: rgba(10,12,16,0.6);">
+          <span class="stat-card-label">Tasting Orders</span>
+          <div class="stat-card-val">{{ orders.count }}</div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">Dispatched or completed</p>
+        </div>
+        <div class="stat-card" style="background: rgba(10,12,16,0.6);">
+          <span class="stat-card-label">Gastronomic Total</span>
+          <div class="stat-card-val">${{ total_spent|floatformat:2 }}</div>
+          <p style="font-size: 0.78rem; color: var(--success); margin-top: 0.2rem;">Cumulative orders</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESERVATIONS SECTION -->
+    <div class="data-table-wrap">
+      <div class="table-header-bar">
+        <h3 class="font-serif" style="font-size: 1.4rem; color: #fff;">Your Table Sanctuary Bookings</h3>
+        <span style="font-size: 0.82rem; color: var(--gold-light);">{{ reservations.count }} Reservations Recorded</span>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="luxury-table">
+          <thead>
+            <tr>
+              <th>Booking Code</th>
+              <th>Date & Slot</th>
+              <th>Guests</th>
+              <th>Seating Atmosphere</th>
+              <th>Special Requests</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for res in reservations %}
+            <tr>
+              <td><strong style="color: var(--gold-light);">{{ res.booking_code }}</strong></td>
+              <td>
+                <div>{{ res.date|date:"F d, Y" }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ res.time_slot }}</div>
+              </td>
+              <td>{{ res.guests }} Guests</td>
+              <td>{{ res.get_seating_area_display }}</td>
+              <td style="max-width: 240px; font-size: 0.85rem; color: var(--text-muted);">
+                {{ res.special_requests|default:"None specified" }}
+              </td>
+              <td>
+                <span class="status-badge {{ res.status }}">
+                  {{ res.get_status_display }}
+                </span>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                <p style="font-family: var(--font-serif); font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem;">No Bookings Found</p>
+                <p style="font-size: 0.88rem; margin-bottom: 1.25rem;">You haven't reserved a dining table yet.</p>
+                <a href="{% url 'restaurant:home' %}#reservations" class="btn btn-outline-gold btn-sm">Reserve Your First Table →</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ORDERS SECTION -->
+    <div class="data-table-wrap">
+      <div class="table-header-bar">
+        <h3 class="font-serif" style="font-size: 1.4rem; color: #fff;">Your Tasting Orders & Receipts</h3>
+        <span style="font-size: 0.82rem; color: var(--gold-light);">{{ orders.count }} Orders Placed</span>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="luxury-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Date</th>
+              <th>Service Mode</th>
+              <th>Items Ordered</th>
+              <th>Total Charged</th>
+              <th>Status</th>
+              <th>Official Receipt</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ord in orders %}
+            <tr>
+              <td><strong>{{ ord.order_number }}</strong></td>
+              <td>{{ ord.created_at|date:"M d, Y - H:i" }}</td>
+              <td>
+                {{ ord.get_order_type_display }}
+                {% if ord.table_or_address %}
+                <div style="font-size: 0.78rem; color: var(--gold-light);">{{ ord.table_or_address }}</div>
+                {% endif %}
+              </td>
+              <td style="max-width: 250px; font-size: 0.85rem;">
+                {% for item in ord.items.all %}
+                  <div>{{ item.quantity }}x {{ item.item_name }}</div>
+                {% empty %}
+                  <span style="color: var(--text-muted);">Tasting experience</span>
+                {% endfor %}
+              </td>
+              <td style="font-weight: 700; color: var(--gold-light); font-size: 1.05rem;">
+                ${{ ord.total }}
+              </td>
+              <td>
+                <span class="status-badge {{ ord.status }}">
+                  {{ ord.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <a href="{% url 'restaurant:receipt_view' ord.order_number %}" target="_blank" class="btn btn-outline-gold btn-sm">
+                  <span>View Receipt 🖨</span>
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                <p style="font-family: var(--font-serif); font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem;">No Tasting Orders Yet</p>
+                <p style="font-size: 0.88rem; margin-bottom: 1.25rem;">Assemble your custom dishes from our curated menu.</p>
+                <a href="{% url 'restaurant:home' %}#menu" class="btn btn-gold btn-sm">Browse Tasting Menu →</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

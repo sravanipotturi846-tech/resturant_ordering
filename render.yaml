@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: letoile-doree-restaurant
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn restaurant_config.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.5
+      - key: DJANGO_SETTINGS_MODULE
+        value: restaurant_config.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: RENDER
+        value: "true"
+      - key: WEB_CONCURRENCY
+        value: "4"

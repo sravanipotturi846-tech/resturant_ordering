@@ -1,0 +1,347 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}L'Étoile Dorée | Haute Gastronomie & Fine Dining{% endblock %}</title>
+  <meta name="description" content="Experience Michelin-inspired contemporary haute cuisine, tableside mixology, and white-glove hospitality at L'Étoile Dorée.">
+  
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="luxury-navbar">
+    <div class="container nav-inner">
+      <a href="{% url 'restaurant:home' %}" class="brand-logo" id="brand-logo-link">
+        <div class="brand-crest">✦</div>
+        <div class="brand-name">L'ÉTOILE <span>DORÉE</span></div>
+      </a>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="{% url 'restaurant:home' %}#about" class="nav-link">Our Heritage</a></li>
+          <li><a href="{% url 'restaurant:home' %}#signatures" class="nav-link">Signatures</a></li>
+          <li><a href="{% url 'restaurant:home' %}#menu" class="nav-link">Tasting Menu</a></li>
+          <li><a href="{% url 'restaurant:home' %}#reservations" class="nav-link">Reserve Table</a></li>
+          <li><a href="{% url 'restaurant:home' %}#cellar" class="nav-link">The Cellar</a></li>
+          <li><a href="{% url 'restaurant:dashboard' %}" class="nav-link" style="color: var(--gold-light);">Staff</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <!-- User Account Action -->
+        {% if user.is_authenticated %}
+          <a href="{% url 'restaurant:profile' %}" class="nav-link" style="color: var(--gold-light); font-weight: 600; display: flex; align-items: center; gap: 0.35rem;">
+            <span>✦ {{ user.first_name|default:user.username }}</span>
+          </a>
+          <a href="{% url 'restaurant:logout' %}" class="nav-link" style="font-size: 0.82rem; color: var(--text-faint);">
+            Sign Out
+          </a>
+        {% else %}
+          <a href="{% url 'restaurant:login' %}" class="nav-link" style="color: var(--text-muted); font-size: 0.88rem;">
+            Sign In
+          </a>
+        {% endif %}
+
+        <!-- Cart Drawer Toggle -->
+        <button id="cart-toggle-btn" class="cart-toggle-btn" aria-label="View Tasting Order">
+          <span>🛒</span>
+          <span class="cart-badge" style="display: none;">0</span>
+        </button>
+
+        <a href="{% url 'restaurant:home' %}#reservations" class="btn btn-gold btn-sm" id="nav-reserve-btn">
+          <span>Book Table</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Block -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Slide-Over Cart Drawer -->
+  <div class="cart-drawer-overlay" id="cart-overlay"></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-label="Tasting Cart">
+    <div class="cart-header">
+      <h3 class="font-serif">Your Tasting Order</h3>
+      <button class="cart-close-btn" id="cart-close-btn" aria-label="Close cart">&times;</button>
+    </div>
+
+    <div class="cart-items-list" id="cart-items-container">
+      <!-- Items dynamically populated via app.js -->
+    </div>
+
+    <div class="cart-footer">
+      <div class="bill-line">
+        <span>Subtotal</span>
+        <span id="cart-subtotal">$0.00</span>
+      </div>
+      <div class="bill-line">
+        <span>Culinary Tax & Service (8.5%)</span>
+        <span id="cart-tax">$0.00</span>
+      </div>
+      <div class="bill-line total">
+        <span>Total Experience</span>
+        <span id="cart-total">$0.00</span>
+      </div>
+
+      <button id="cart-checkout-btn" class="btn btn-gold" style="width: 100%; margin-top: 1.25rem;" disabled>
+        <span>Proceed to Order Details</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Order Placement Modal -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal-card">
+      <button class="cart-close-btn" id="order-close-btn" style="position: absolute; top: 1rem; right: 1.2rem;">&times;</button>
+      <h3 class="font-serif" style="font-size: 1.8rem; margin-bottom: 0.5rem;">Confirm Tasting Order</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Select your service preference and delivery specifications.</p>
+      
+      <form id="order-form" style="text-align: left;">
+        <div class="form-group">
+          <label class="form-label" for="order-name">Full Name</label>
+          <input type="text" id="order-name" class="form-control" placeholder="e.g. Eleanor Vance" required>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="order-email">Email</label>
+            <input type="email" id="order-email" class="form-control" placeholder="eleanor@michelin.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="order-phone">Telephone</label>
+            <input type="tel" id="order-phone" class="form-control" placeholder="+1 (555) 019-2834" required>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="order-type">Service Mode</label>
+            <select id="order-type" class="form-control">
+              <option value="dine_in">Dine-In Table Order</option>
+              <option value="takeaway">Luxury Express Takeaway</option>
+              <option value="delivery">White-Glove Private Delivery</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="order-location">Table # or Suite Address</label>
+            <input type="text" id="order-location" class="form-control" placeholder="Table 14 or 742 Evergreen Terrace">
+          </div>
+        </div>
+
+        <!-- Gratuity & Sommelier Tip Selection -->
+        <div class="form-group" style="margin-top: 1rem;">
+          <label class="form-label">Sommelier & Hospitality Gratuity</label>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" class="btn btn-outline-gold btn-sm tip-btn" data-tip="15">15%</button>
+            <button type="button" class="btn btn-outline-gold btn-sm tip-btn active" data-tip="18" style="background: rgba(212,175,55,0.2);">18% Standard</button>
+            <button type="button" class="btn btn-outline-gold btn-sm tip-btn" data-tip="20">20% Exceptional</button>
+            <button type="button" class="btn btn-outline-gold btn-sm tip-btn" data-tip="0">Custom / 0%</button>
+          </div>
+          <input type="hidden" id="order-tip-percent" value="18">
+        </div>
+
+        <!-- Simulated Card Payment Section -->
+        <div style="background: rgba(10, 12, 16, 0.6); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <label class="form-label" style="margin-bottom: 0;">Payment Method</label>
+            <span style="font-size: 0.75rem; color: var(--gold-light);">🔒 Encrypted Checkout</span>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0.75rem;">
+            <input type="text" id="order-card-number" class="form-control" placeholder="Card Number (e.g. 4000 1234 5678 9010)" maxlength="19" value="4000 1234 5678 9010" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group" style="margin-bottom: 0;">
+              <input type="text" id="order-card-exp" class="form-control" placeholder="MM/YY" maxlength="5" value="12/28" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <input type="text" id="order-card-cvv" class="form-control" placeholder="CVC (3 digits)" maxlength="4" value="888" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="order-notes">Culinary / Allergy Instructions</label>
+          <textarea id="order-notes" class="form-control" rows="2" placeholder="e.g., Medium-rare for steaks, no shellfish allergy cross-contamination"></textarea>
+        </div>
+
+        <!-- Live Modal Bill Summary -->
+        <div style="background: rgba(255,255,255,0.03); border-radius: 4px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.88rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem; color: var(--text-muted);">
+            <span>Food & Beverage Subtotal:</span>
+            <span id="modal-subtotal">$0.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem; color: var(--text-muted);">
+            <span>Culinary Tax (8.5%):</span>
+            <span id="modal-tax">$0.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem; color: var(--text-muted);">
+            <span>Staff Gratuity:</span>
+            <span id="modal-tip">$0.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-weight: 700; color: #fff; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.5rem; margin-top: 0.5rem; font-size: 1.05rem;">
+            <span>Total to Charge:</span>
+            <span id="modal-total" style="color: var(--gold-light);">$0.00</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-gold" id="btn-pay-order" style="width: 100%;">
+          <span>Authorize & Place Tasting Order</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Success Confirmation Modal -->
+  <div class="modal-overlay" id="success-modal">
+    <div class="modal-card">
+      <div class="modal-icon-success">✓</div>
+      <h3 class="font-serif" id="success-modal-title" style="font-size: 1.8rem; margin-bottom: 0.75rem;">Order Confirmed</h3>
+      <p id="success-modal-msg" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;"></p>
+      
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="#" id="view-receipt-btn" target="_blank" class="btn btn-gold" style="flex: 1; display: none;">
+          <span>View Official Receipt 🖨</span>
+        </a>
+        <button class="btn btn-outline-gold" id="success-modal-close" style="flex: 1;">
+          <span>Return to Menu</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dish Tasting Notes & Reviews Modal -->
+  <div class="modal-overlay" id="dish-review-modal">
+    <div class="modal-card" style="max-width: 640px; text-align: left; max-height: 90vh; overflow-y: auto;">
+      <button class="cart-close-btn" id="dish-review-close-btn" style="position: absolute; top: 1rem; right: 1.2rem;">&times;</button>
+      
+      <div style="margin-bottom: 1.5rem; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 1rem;">
+        <span class="section-label" style="margin-bottom: 0.2rem;">Tasting Notes & Ratings</span>
+        <h3 class="font-serif" id="modal-dish-name" style="font-size: 1.8rem; color: #fff;">Dish Title</h3>
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.3rem;">
+          <span id="modal-dish-rating" style="color: var(--gold-light); font-weight: 700; font-size: 1.1rem;">★ 5.0</span>
+          <span id="modal-dish-count" style="color: var(--text-muted); font-size: 0.85rem;">(0 Tasting Notes)</span>
+        </div>
+      </div>
+
+      <!-- Existing Reviews Container -->
+      <div id="modal-reviews-container" style="margin-bottom: 2rem; max-height: 240px; overflow-y: auto; padding-right: 0.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Dynamically populated via app.js -->
+      </div>
+
+      <!-- Add Review Form -->
+      <div style="background: rgba(10,12,16,0.6); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 1.5rem;">
+        <h4 class="font-serif" style="font-size: 1.15rem; color: #fff; margin-bottom: 1rem;">Share Your Tasting Experience</h4>
+        
+        <form id="dish-review-form">
+          <input type="hidden" id="review-dish-id" value="">
+          <input type="hidden" id="review-rating-val" value="5">
+
+          <!-- Star Picker -->
+          <div style="margin-bottom: 1rem;">
+            <label class="form-label">Score (1 to 5 Stars)</label>
+            <div id="star-picker" style="font-size: 1.6rem; color: var(--gold-light); cursor: pointer; display: flex; gap: 0.35rem; user-select: none;">
+              <span class="star-pick" data-val="1">★</span>
+              <span class="star-pick" data-val="2">★</span>
+              <span class="star-pick" data-val="3">★</span>
+              <span class="star-pick" data-val="4">★</span>
+              <span class="star-pick" data-val="5">★</span>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="review-author">Patron Name</label>
+              <input type="text" id="review-author" class="form-control" placeholder="Your name" value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="review-headline">Tasting Headline</label>
+              <input type="text" id="review-headline" class="form-control" placeholder="e.g. Sublime balance of truffle notes" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="review-comment">Tasting Commentary</label>
+            <textarea id="review-comment" class="form-control" rows="3" placeholder="Describe the aroma, texture, seasoning, or wine pairing..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-gold btn-sm" style="width: 100%;">
+            <span>Publish Tasting Note ✦</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="luxury-footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <div class="brand-logo" style="margin-bottom: 1.25rem;">
+          <div class="brand-crest">✦</div>
+          <div class="brand-name">L'ÉTOILE <span>DORÉE</span></div>
+        </div>
+        <p style="font-size: 0.92rem; line-height: 1.7; color: var(--text-muted); max-width: 320px;">
+          An uncompromising celebration of culinary art, seasonal alchemy, and rare heritage vintages in an atmosphere of refined intimacy.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="font-serif">Hours of Service</h4>
+        <ul class="footer-links">
+          <li><strong>Dinner Tasting:</strong> Tue – Sun | 17:30 – 23:30</li>
+          <li><strong>Sommelier Lunch:</strong> Fri – Sun | 12:00 – 15:00</li>
+          <li><strong>Cellar Bar:</strong> Wed – Sun | 18:00 – 01:00</li>
+          <li><em>Closed on Mondays for estate provisioning.</em></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="font-serif">Navigation</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'restaurant:home' %}#about">The Kitchen Philosophy</a></li>
+          <li><a href="{% url 'restaurant:home' %}#menu">A La Carte & Tasting</a></li>
+          <li><a href="{% url 'restaurant:home' %}#reservations">Private Vault Dining</a></li>
+          <li><a href="{% url 'restaurant:dashboard' %}">Manager Dashboard</a></li>
+          <li><a href="/admin/">Django Admin</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="font-serif">Sanctuary Address</h4>
+        <p style="font-size: 0.92rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 1rem;">
+          420 Avenue Montaigne, Suite 100<br>
+          Haute Gastronomy Quarter<br>
+          Direct Line: +1 (555) 789-2045<br>
+          Concierge: reservations@letoiledoree.com
+        </p>
+        <span style="font-size: 0.8rem; color: var(--gold-light); letter-spacing: 0.08em; text-transform: uppercase;">
+          Dress Code: Elegant Formal Attire
+        </span>
+      </div>
+    </div>
+
+    <div class="container copyright-bar">
+      &copy; 2026 L'Étoile Dorée Restaurant Group. All rights reserved. Crafted with Django & Haute Gastronomy Standards.
+    </div>
+  </footer>
+
+  <script src="{% static 'js/app.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

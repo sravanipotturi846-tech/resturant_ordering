@@ -1,0 +1,243 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receipt #{{ order.order_number }} | L'Étoile Dorée</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  <style>
+    body {
+      background: #0a0c10;
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .receipt-container {
+      background: #121620;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      max-width: 600px;
+      width: 100%;
+      padding: 3rem 2.5rem;
+      box-shadow: var(--shadow-lg), var(--shadow-gold);
+      position: relative;
+    }
+
+    .receipt-header {
+      text-align: center;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      margin-bottom: 2rem;
+    }
+
+    .receipt-crest {
+      font-size: 2rem;
+      color: var(--gold-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .receipt-title {
+      font-family: var(--font-serif);
+      font-size: 1.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    .receipt-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      font-size: 0.88rem;
+      margin-bottom: 2rem;
+      background: rgba(10, 12, 16, 0.5);
+      padding: 1.25rem;
+      border-radius: 6px;
+    }
+
+    .receipt-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+      font-size: 0.92rem;
+    }
+
+    .receipt-table th {
+      text-align: left;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--gold-light);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .receipt-table td {
+      padding: 0.8rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .receipt-summary {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 1rem;
+      font-size: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+
+    .summary-row.total-row {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .summary-row.total-row span:last-child {
+      color: var(--gold-light);
+    }
+
+    .receipt-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .receipt-container {
+        border: none !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        color: #000 !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .receipt-title, .receipt-crest, .receipt-table th, .summary-row.total-row span:last-child {
+        color: #000 !important;
+      }
+      .receipt-meta-grid {
+        background: #f8f9fa !important;
+        color: #000 !important;
+      }
+      .receipt-actions {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="receipt-container">
+    <div class="receipt-header">
+      <div class="receipt-crest">✦</div>
+      <h1 class="receipt-title">L'ÉTOILE <span class="text-gold">DORÉE</span></h1>
+      <p style="font-size: 0.85rem; color: var(--gold-light); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 0.25rem;">Haute Gastronomie & Cellar</p>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem;">420 Avenue Montaigne, Suite 100 • Paris / International</p>
+    </div>
+
+    <div class="receipt-meta-grid">
+      <div>
+        <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Order Number</p>
+        <p style="font-weight: 700; color: #fff;">{{ order.order_number }}</p>
+      </div>
+      <div>
+        <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Date & Time</p>
+        <p>{{ order.created_at|date:"F d, Y - H:i" }}</p>
+      </div>
+      <div>
+        <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Guest / Patron</p>
+        <p style="font-weight: 600;">{{ order.customer_name }}</p>
+      </div>
+      <div>
+        <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Service Type</p>
+        <p>{{ order.get_order_type_display }}{% if order.table_or_address %} ({{ order.table_or_address }}){% endif %}</p>
+      </div>
+      <div>
+        <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Payment Method</p>
+        <p>{{ order.payment_method }} •••• {{ order.card_last4|default:"4242" }}</p>
+      </div>
+      <div>
+        <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Payment Status</p>
+        <p style="color: var(--success); font-weight: 600;">Paid & Authorized</p>
+      </div>
+    </div>
+
+    <table class="receipt-table">
+      <thead>
+        <tr>
+          <th>Dish Selection</th>
+          <th style="text-align: center;">Qty</th>
+          <th style="text-align: right;">Unit Price</th>
+          <th style="text-align: right;">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order.items.all %}
+        <tr>
+          <td>
+            <strong>{{ item.item_name }}</strong>
+          </td>
+          <td style="text-align: center;">{{ item.quantity }}</td>
+          <td style="text-align: right;">${{ item.price }}</td>
+          <td style="text-align: right;">${{ item.item_subtotal }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="receipt-summary">
+      <div class="summary-row">
+        <span>Cuisine Subtotal</span>
+        <span>${{ order.subtotal }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Culinary Tax & Service (8.5%)</span>
+        <span>${{ order.tax }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Staff & Sommelier Gratuity</span>
+        <span>${{ order.tip_amount }}</span>
+      </div>
+      <div class="summary-row total-row">
+        <span>Total Experience</span>
+        <span>${{ order.total }}</span>
+      </div>
+    </div>
+
+    {% if order.notes %}
+    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 4px; font-size: 0.85rem; color: var(--text-muted);">
+      <strong>Special Instructions:</strong> {{ order.notes }}
+    </div>
+    {% endif %}
+
+    <div class="receipt-actions">
+      <button onclick="window.print()" class="btn btn-gold" style="flex: 1;">
+        <span>Print / Save PDF Receipt 🖨</span>
+      </button>
+      <a href="{% url 'restaurant:home' %}" class="btn btn-outline-gold" style="flex: 1;">
+        <span>Return to Menu</span>
+      </a>
+    </div>
+  </div>
+
+</body>
+</html>
